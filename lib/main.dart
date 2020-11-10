@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import 'src/pages/addUsuariosFirestorePage.dart';
+import 'src/pages/home_page.dart';
+import 'src/pages/login_page.dart';
+
+//import 'src/pages/addUsuariosFirestorePage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,37 +23,30 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AddUsuariosFirestorePage(),
+      home: MainPage(),
     );
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key key}) : super(key: key);
-
+class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(title: Text("FIRESTORE")),
-        body: StreamBuilder(
-            stream:
-                FirebaseFirestore.instance.collection('negocios').snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError)
-                return Center(child: Text('Error: ${snapshot.error}'));
-
-              if (!snapshot.hasData)
-                return Center(child: CircularProgressIndicator());
-
-              return ListView.builder(
-                itemCount: snapshot.data.documents.length,
-                itemBuilder: (context, index) {
-                  DocumentSnapshot data = snapshot.data.documents[index];
-                  return ListTile(
-                    title: Text(data['name']),
-                  );
-                },
-              );
-            }));
+    // Firebase tarda sobre una hora en refrescar que un usuario esté deshabilitado o no exista
+    // Si quiero que refresque el estado al iniciar la aplicación hago el reload siguiente.
+    // if (FirebaseAuth.instance.currentUser != null) {
+    //   FirebaseAuth.instance.currentUser.reload();
+    // }
+    return StreamBuilder<User>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+        if (snapshot.hasData) {
+          print("data exists");
+          return HomePage();
+        } else {
+          print("data no exists");
+          return LoginPage();
+        }
+      },
+    );
   }
 }
