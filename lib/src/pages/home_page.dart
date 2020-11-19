@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_pruebas/src/services/auth_service.dart';
+import 'package:firebase_pruebas/src/services/firestoreService.dart';
 //import 'package:firebase_auth/firebase_auth.dart';
 
 class HomePage extends StatelessWidget {
@@ -20,10 +21,24 @@ class HomePage extends StatelessWidget {
             ],
           ),
           body: Center(
-              child: Text(
-            "HomePage",
-            style: TextStyle(fontSize: 30.0),
-          ))),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "HomePage",
+                  style: TextStyle(fontSize: 30.0),
+                ),
+                RaisedButton(
+                  child: Text("Acción"),
+                  onPressed: () async {
+                    print("---1---");
+                    await getDatosNegocioDeUsuario2("dI7zQbPqDDxOhSXu1AXK");
+                    print("---2---");
+                  },
+                )
+              ],
+            ),
+          )),
     );
   }
 }
