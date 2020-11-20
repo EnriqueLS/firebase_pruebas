@@ -26,6 +26,6 @@ class NegocioModel {
         email: data['email'],
         creadoEn: data['CreateAt'],
         nombreResponsable: data['nombreResponsable'],
-        imageUrl: data['imageUrl'],
+        imageUrl: data['imageUrl']);
   }
 }

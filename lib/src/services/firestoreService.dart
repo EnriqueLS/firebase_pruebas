@@ -1,4 +1,8 @@
+//import 'package:flutter/material.dart';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_pruebas/src/modelos/negocio_model.dart';
 
 Future<String> addUserFirestore(String _email, String _password, String _nombre,
@@ -44,8 +48,7 @@ String addUserFirestore2(String _email, String _password, String _nombre,
 }
 
 //Debo devolver el modelo de un negocio con sus datos Future<negocioModel>
-//Falta crear el modelo y cargar el resultado de esta función
-//El valor que le pasamos a la función es FirebaseAuth.instance.currentUser
+//El valor que le pasamos a la función es el id de usuario FirebaseAuth.instance.currentUser
 Future<NegocioModel> getDatosNegocio(String _negocioId) async {
   NegocioModel negocio;
   DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
@@ -85,6 +88,7 @@ void getDatosNegocio2(String _negocioId) async {
   });
 }
 
+// Esta función NO funciona, no devuelve nada
 void getDatosNegocioDeUsuario(String _clienteId) async {
   DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
       .collection("negocios")
@@ -109,11 +113,10 @@ void getDatosNegocioDeUsuario(String _clienteId) async {
 
 void getDatosNegocioDeUsuario2(String _clienteId) async {
   QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-      .collection("negocios")
-      .where()
-      // .doc("{negociosId}")
-      // .collection("users")
-      // .doc(_clienteId)
+      .collection("negocios/{negociosId}")
+      .doc("{negociosId}")
+      .collection("users")
+      //.where("userId", isEqualTo: _clienteId)
       .get();
   print("--------------------------");
   print(querySnapshot.docs.length);
@@ -130,4 +133,34 @@ void getDatosNegocioDeUsuario2(String _clienteId) async {
   //   print(
   //       "No pudimos obtener los datos del negocio referente a dicho usuario.");
   // }
+}
+
+// FUNCION PARA SUBIR IMAGENES A STORAGE
+Future<String> uploadFile(
+    String imagePath, String folderName, String imageName) async {
+  //File file = File(filePath);
+
+  var file = File(imagePath);
+  final TaskSnapshot taskSnapshot = await FirebaseStorage.instance
+      .ref(folderName + '/' + imageName)
+      .putFile(file);
+  final String imageURL = await taskSnapshot.ref.getDownloadURL();
+  return imageURL;
+}
+
+// FUNCION PARA SUBIR IMAGENES A STORAGE capturando error code
+Future<String> uploadFile2(
+    String filePath, String folderName, String imageName) async {
+  //File file = File(filePath);
+  var file = File(filePath);
+
+  try {
+    final TaskSnapshot taskSnapshot = await FirebaseStorage.instance
+        .ref(folderName + '/' + imageName)
+        .putFile(file);
+    final String imageURL = await taskSnapshot.ref.getDownloadURL();
+    return imageURL;
+  } on FirebaseException catch (e) {
+    // e.g, e.code == 'canceled'
+  }
 }
